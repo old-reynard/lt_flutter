@@ -74,11 +74,6 @@
 **/ios/ServiceDefinitions.json
 **/ios/Podfile.lock
 **/ios/Runner/GoogleService-Info.plist
-**/ios/Runner/Info.plist
-**/ios/Runner/Runner.entitlements
-**/ios/Runner/Runner.xcodeproj/project.pbxproj
-**/ios/share/share.entitlements
-**/ios/share/ShareViewController.swift
 **/ios/Runner/GeneratedPluginRegistrant.*
 **/ios/Runner/Assets.xcassets/AppIcon.appiconset/
 
