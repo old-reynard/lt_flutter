@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:little_things/meta/configuration.dart';
+import 'package:little_things/meta/widgets/text.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
@@ -28,7 +28,13 @@ class MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(Configuration.apiUrl),),
+      appBar: AppBar(
+        title: TextBuilder(
+          builder: (_, l, theme) {
+            return Text(l.helloWorld);
+          },
+        ),
+      ),
       body: GoogleMap(
         mapType: MapType.hybrid,
         initialCameraPosition: _kGooglePlex,
