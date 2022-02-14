@@ -37,12 +37,12 @@
 **/android/gradlew
 **/android/gradlew.bat
 **/android/local.properties
+**/android/dev_key.properties
+**/android/keys/
 **/android/**/GeneratedPluginRegistrant.java
+**/android/**/google-services.json
 **/android/key.properties
-**/android/app/key.jks
-**/android/app/dev_key.jks
-**/android/app/prod_key.jks
-**/android/app/stg_key.jks
+**/android/app/keys/
 **/android/res/
 
 # iOS/XCode related

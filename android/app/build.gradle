@@ -36,10 +36,25 @@ if (project.hasProperty('dart-defines')) {
 }
 
 
-
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+apply plugin: 'com.google.gms.google-services'
+
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('dev_key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+} else {
+    println('Key.properties file not found')
+}
+
+if (dartEnvironmentVariables.LT_ENVIRONMENT == 'dev') {
+    def source = new File("app/src/debug/google-services.json")
+    def dest = new File("app/google-services.json")
+    dest.write(source.text)
+}
 
 android {
     compileSdkVersion localProperties.getProperty('flutter.compileSdkVersion').toInteger()
@@ -66,12 +81,20 @@ android {
         versionName flutterVersionName
         resValue "string", "app_name", dartEnvironmentVariables.LT_APP_NAME
         resValue "string", "maps_api_key", dartEnvironmentVariables.LT_MAPS_API_KEY
+        multiDexEnabled true
+    }
+
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
         }
     }
@@ -83,4 +106,6 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation platform('com.google.firebase:firebase-bom:29.1.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 }
