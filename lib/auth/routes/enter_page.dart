@@ -10,9 +10,6 @@ class EnterPage extends StatelessWidget {
       body: Center(
         child: TextButton(
           onPressed: () async {
-            final user = await authService.loginWithGoogle();
-            var a = 1;
-            print(user);
           },
           child: const Text('Login'),
         ),
