@@ -1,6 +1,14 @@
 {
-    "helloWorld": "Hello World!",
-    "@helloWorld": {
-      "description": "The conventional newborn programmer greeting"
-    }
+  "loginToProceed": "In order to create new objects on the map,\n you need to log in.",
+  "@loginToProceed": {
+    "description": "Login bottom sheet greeting."
+  },
+  "loginWithGoogle": "Join with Google",
+  "@loginWithGoogle": {
+    "description": "Login bottom sheet greeting."
+  },
+  "loginToProceedBody": "Those map objects are called pins, by the way.",
+  "@loginToProceedBody": {
+    "description": "Login bottom sheet greeting."
+  }
 }

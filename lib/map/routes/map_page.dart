@@ -1,8 +1,15 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:little_things/auth/models/seeker.dart';
+import 'package:little_things/meta/services/globals.dart';
+import 'package:little_things/meta/utils/navigation.dart';
+import 'package:little_things/meta/vectors.dart';
+import 'package:little_things/meta/widgets/avatar.dart';
+import 'package:little_things/meta/widgets/bottom_sheet.dart';
+import 'package:little_things/meta/widgets/buttons.dart';
 import 'package:little_things/meta/widgets/text.dart';
+import 'package:little_things/meta/widgets/visual.dart';
+import 'package:provider/provider.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
@@ -12,46 +19,117 @@ class MapPage extends StatefulWidget {
 }
 
 class MapPageState extends State<MapPage> {
-  final Completer<GoogleMapController> _controller = Completer();
-
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
+  late GoogleMapController _controller;
+  static const CameraPosition _initPosition = CameraPosition(
+    // bearing: 192.8334901395799,
+    target: LatLng(43.65, -79.3832),
+    tilt: 59.440717697143555,
+    zoom: 16,
   );
 
-  static const CameraPosition _kLake = CameraPosition(
-      bearing: 192.8334901395799,
-      target: LatLng(37.43296265331129, -122.08832357078792),
-      tilt: 59.440717697143555,
-      zoom: 19.151926040649414);
+  @override
+  void initState() {
+    super.initState();
+
+    _restartSession();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: TextBuilder(
-          builder: (_, l, theme) {
-            return Text(l.helloWorld);
-          },
-        ),
-      ),
-      body: GoogleMap(
-        mapType: MapType.hybrid,
-        initialCameraPosition: _kGooglePlex,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToTheLake,
-        label: const Text('To the lake!'),
-        icon: const Icon(Icons.directions_boat),
+      body: Stack(
+        children: [
+          _map(),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: _avatar(),
+          )
+        ],
       ),
     );
   }
 
-  Future<void> _goToTheLake() async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
+  Widget _map() {
+    return GoogleMap(
+      mapType: MapType.normal,
+      initialCameraPosition: _initPosition,
+      onMapCreated: (GoogleMapController c) => _controller = c,
+      onLongPress: _onLongPress,
+    );
+  }
+
+  Widget _avatar() {
+    final seeker = context.watch<Seeker>();
+    if (seeker.isEmpty) return Container();
+    return SafeArea(
+      child: Avatar(
+        url: seeker.picture!,
+      ).pad(right: 16),
+    );
+  }
+
+  void _onLongPress(LatLng position) {
+    if (!context.isLoggedIn) {
+      return _toLogin();
+    }
+    print('logged out');
+  }
+
+  void _toLogin() {
+    bottomSheet(
+      context,
+      height: .4,
+      child: TextBuilder(
+        builder: (context, l, theme) {
+          return Center(
+            child: Column(
+              children: [
+                space(),
+                Text(
+                  l.loginToProceed,
+                  style: theme.primaryTextTheme.headline4,
+                  textAlign: TextAlign.center,
+                ).pad(bottom: 8),
+                Text(
+                  l.loginToProceedBody,
+                  style: theme.primaryTextTheme.bodyText2,
+                  textAlign: TextAlign.center,
+                ),
+                space(80),
+                SecondaryButton(
+                  onPressed: _login,
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: Text(
+                          l.loginWithGoogle,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        top: 0,
+                        right: 0,
+                        child: vector(googleIcon),
+                      )
+                    ],
+                  ),
+                ).pad(horizontal: 40)
+              ],
+            ),
+          );
+        },
+      ).pad(horizontal: 24),
+    );
+  }
+
+  Future<void> _login() async {
+    final seeker = await authService.loginWithGoogle();
+    context.login(seeker);
+    context.pop();
+  }
+
+  Future<void> _restartSession() async {
+    authService.refresh().then(context.login);
   }
 }

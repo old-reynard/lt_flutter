@@ -40,12 +40,7 @@ class AuthService {
     }
   }
 
-  Future<Seeker> loginWithGoogle() async {
-    final _ssoUser = await _loginWithGoogle();
-    if (_ssoUser == null) {
-      throw UnauthorizedError();
-    }
-    final token = await _ssoUser.getIdToken();
+  Future<Seeker> _reportToken(String token) async {
     final headers = {'Authorization': token};
     final url = '$_api/sso';
     final bundle = NetworkBundle(
@@ -58,5 +53,24 @@ class AuthService {
     );
     final response = await request(bundle);
     return Seeker.fromJson(response.body['user']);
+  }
+
+  Future<Seeker> loginWithGoogle() async {
+    final _ssoUser = await _loginWithGoogle();
+    if (_ssoUser == null) {
+      throw UnauthorizedError();
+    }
+    final token = await _ssoUser.getIdToken();
+    return _reportToken(token);
+  }
+
+  User? currentUser() {
+    return _firebase.currentUser;
+  }
+
+  Future<Seeker> refresh() async {
+    final user = _firebase.currentUser;
+    if (user == null) Seeker.empty();
+    return _reportToken(await user!.getIdToken(true));
   }
 }

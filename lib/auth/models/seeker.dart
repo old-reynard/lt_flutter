@@ -1,13 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:little_things/meta/models/json.dart';
+import 'package:provider/provider.dart';
 
-class Seeker {
-  final String? name;
-  final String? picture;
-  final String? userId;
-  final String? email;
-  final bool verified;
-  final DateTime? created;
-  final String? token;
+class Seeker with ChangeNotifier {
+  String? name;
+  String? picture;
+  String? userId;
+  String? email;
+  bool verified;
+  DateTime? created;
+  String? token;
 
   Seeker({
     this.name,
@@ -32,8 +34,22 @@ class Seeker {
     );
   }
 
+  static Seeker of(BuildContext context) => Provider.of<Seeker>(context, listen: false);
+
   factory Seeker.empty() {
     return Seeker();
+  }
+
+  void replace(Seeker other) {
+    name = other.name;
+    picture = other.picture;
+    userId = other.userId;
+    email = other.email;
+    verified = other.verified;
+    created = other.created;
+    token = other.token;
+
+    notifyListeners();
   }
 
   bool get isEmpty => userId == null;
@@ -42,5 +58,13 @@ class Seeker {
   String toString() {
     if (isEmpty) return 'Anonymous seeker';
     return 'Seeker #$userId, $name';
+  }
+}
+
+extension SeekerContext on BuildContext {
+  bool get isLoggedIn => !Seeker.of(this).isEmpty;
+
+  void login(Seeker other) {
+    Seeker.of(this).replace(other);
   }
 }

@@ -10,6 +10,7 @@ environment:
 
 
 dependencies:
+  cached_network_image:  3.2.0
   firebase_auth: 3.3.7
   firebase_core: ^1.12.0
   flutter:
@@ -17,11 +18,13 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_secure_storage: ^5.0.2
+  flutter_svg: ^1.0.3
   google_maps_flutter: ^2.1.1
-  google_sign_in: 5.2.3
+  google_sign_in: 5.2.4
   http: ^0.13.4
   intl: ^0.17.0
   logging: 1.0.2
+  provider: ^6.0.2
 
 
 dev_dependencies:
@@ -33,7 +36,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
-
+  assets:
+    - assets/svg/
   fonts:
     - family: Lato
       fonts:

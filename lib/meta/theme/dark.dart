@@ -158,4 +158,10 @@ final darkThemeData = ThemeData(
     secondaryContainer: _secondaryDark,
     onSecondary: Colors.white,
   ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: _scaffoldColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+    )
 );

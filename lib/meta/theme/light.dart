@@ -153,4 +153,10 @@ final lightThemeData = ThemeData(
     secondaryContainer: _secondaryDark,
     onSecondary: Colors.white,
   ),
+  bottomSheetTheme: BottomSheetThemeData(
+    backgroundColor: Colors.white,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+  ),
 );
