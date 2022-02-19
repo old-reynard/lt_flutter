@@ -24,13 +24,13 @@ class Seeker with ChangeNotifier {
   factory Seeker.fromJson(Json json) {
     if (json.isEmpty) return Seeker.empty();
     return Seeker(
-      name: json['name'],
-      picture: json['avatar'],
-      userId: json['id'],
+      name: json['name'] ?? json['username'],
+      picture: json['avatar'] ?? json['avatarUrl'],
+      userId: '${json['id']}',
       email: json['email'],
       token: json['token'],
       verified: json['verified'] ?? false,
-      created: DateTime.tryParse(json['created'] ?? ''),
+      created: DateTime.tryParse(json['created'] ?? json['createdAt'] ?? ''),
     );
   }
 

@@ -15,6 +15,7 @@ class AuthService {
   final _googleSignIn = GoogleSignIn(scopes: []);
   final _api = Configuration.apiUrl;
   final _service = 'AuthService';
+  String? _sessionToken;
 
   Future<User?> _loginWithGoogle() async {
     try {
@@ -52,7 +53,9 @@ class AuthService {
       body: {},
     );
     final response = await request(bundle);
-    return Seeker.fromJson(response.body['user']);
+    final seeker = Seeker.fromJson(response.body['user']);
+    _sessionToken = seeker.token;
+    return seeker;
   }
 
   Future<Seeker> loginWithGoogle() async {
@@ -72,5 +75,9 @@ class AuthService {
     final user = _firebase.currentUser;
     if (user == null) Seeker.empty();
     return _reportToken(await user!.getIdToken(true));
+  }
+
+  Map<String, String> authHeader() {
+    return {'Authorization': _sessionToken ?? ''};
   }
 }

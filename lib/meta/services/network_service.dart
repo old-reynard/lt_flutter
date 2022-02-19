@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:little_things/meta/models/json.dart';
+import 'package:little_things/meta/services/globals.dart';
 import 'package:logging/logging.dart';
 
 const _allowedFormRequestVerbs = ['post', 'put'];
@@ -69,7 +70,7 @@ class Response {
 
 class _NetworkService {
   static Future<Response> makeRequest(NetworkBundle bundle, {bool allowErrors = false}) async {
-    var headers = bundle.headers;
+    var headers = bundle.headers ?? requestHeaders;
     var url = Uri.parse(bundle.url);
     var body = jsonEncode(bundle.body);
     switch (bundle.verb) {
@@ -152,6 +153,7 @@ class _NetworkService {
     }
   }
 
+  // ignore: unused_element
   static Future<Response> makeFormRequest(NetworkBundle bundle) async {
     final url = bundle.url;
     final body = bundle.body!;
