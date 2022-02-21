@@ -8,10 +8,14 @@ Future<T?> bottomSheet<T>(
   return showModalBottomSheet<T>(
     context: context,
     builder: (BuildContext context) {
-      return SizedBox(
-        height: MediaQuery.of(context).size.height * height,
-        child: child,
+      return Padding(
+        padding: MediaQuery.of(context).viewInsets,
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height * height,
+          child: child,
+        ),
       );
     },
+    isScrollControlled: true,
   );
 }

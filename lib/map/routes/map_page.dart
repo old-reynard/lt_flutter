@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:little_things/auth/models/seeker.dart';
 import 'package:little_things/map/models/map_storage.dart';
+import 'package:little_things/map/models/pins.dart';
 import 'package:little_things/meta/services/globals.dart';
+import 'package:little_things/meta/utils/misc.dart';
 import 'package:little_things/meta/utils/navigation.dart';
 import 'package:little_things/meta/vectors.dart';
 import 'package:little_things/meta/widgets/avatar.dart';
 import 'package:little_things/meta/widgets/bottom_sheet.dart';
 import 'package:little_things/meta/widgets/buttons.dart';
 import 'package:little_things/meta/widgets/text.dart';
+import 'package:little_things/meta/widgets/text_field.dart';
 import 'package:little_things/meta/widgets/visual.dart';
 import 'package:provider/provider.dart';
 
@@ -54,7 +57,18 @@ class MapPageState extends State<MapPage> {
 
   Widget _map() {
     final storage = context.watch<MapStorage>();
-    final markers = storage.pins.map((pin) => pin.toMarker()).toSet();
+    final markers = storage.all.map((drop) {
+      return drop.toMarker(onTap: () {
+        if (drop is PinSketch) {
+          _toExistingPinSketch(drop);
+        }
+
+        if (drop is Pin) {
+          _toExistingPin(drop);
+        }
+      });
+    }).toSet();
+
     return GoogleMap(
       markers: markers,
       mapType: MapType.normal,
@@ -74,11 +88,37 @@ class MapPageState extends State<MapPage> {
     );
   }
 
+  Widget _categoriesDropdown(PinSketch sketch) {
+    final storage = context.read<MapStorage>();
+    return ValueListenableBuilder<PinCategory>(
+      valueListenable: sketch.category,
+      builder: (context, cat, __) {
+        return DropdownButton<PinCategory>(
+          value: cat.isEmpty ? null : cat,
+          items: storage.categories.map((category) {
+            return DropdownMenuItem<PinCategory>(
+              value: category,
+              child: Text(
+                category.name,
+                style: Theme.of(context).textTheme.bodyText1,
+              ),
+            );
+          }).toList(),
+          onChanged: (category) {
+            if (category != null) {
+              sketch.category.to(category);
+            }
+          },
+        );
+      },
+    );
+  }
+
   void _onLongPress(LatLng position) {
     if (!context.isLoggedIn) {
       return _toLogin();
     } else {
-      return _toNewPin();
+      return _toNewPinSketch(position);
     }
   }
 
@@ -146,20 +186,82 @@ class MapPageState extends State<MapPage> {
   Future<void> _init() async {
     await _restartSession();
 
-    Future<void> _data() async {
-      await _initCategories();
-      await _initPins();
+    void _data() {
+      _initCategories();
+      _initPins();
     }
 
     if (context.isLoggedIn) {
-      await _data();
+      _data();
     } else {
-      await 2.seconds;
+      await 2.seconds; // todo change
       _data();
     }
   }
 
-  void _toNewPin() {
+  void _toNewPinSketch(LatLng position) {
+    final storage = MapStorage.of(context);
+    if (!storage.isInitialized) return;
+
+    final sketch = storage.sketch(position);
+    bottomSheet(
+      context,
+      height: .3,
+      child: TextBuilder(
+        builder: (context, l, theme) {
+          return Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                space(),
+                Text(
+                  l.letsMarkOnMap,
+                  style: theme.primaryTextTheme.headline4,
+                  textAlign: TextAlign.center,
+                ).pad(bottom: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      l.whatCategory,
+                      style: theme.textTheme.bodyText1,
+                    ),
+                    _categoriesDropdown(sketch),
+                  ],
+                ),
+                Text(
+                  l.usefulHints,
+                  style: theme.textTheme.bodyText1,
+                ),
+                PrimaryTextField(
+                  maxLines: 3,
+                  autoFocus: false,
+                ),
+                space(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ValueListenableBuilder<PinCategory>(
+                      valueListenable: sketch.category,
+                      builder: (context, category, _) {
+                        final callback = category.isEmpty ? null : _saveSketch;
+                        return PrimaryMinuteButton(
+                          child: Text(l.save),
+                          onPressed: callback,
+                        );
+                      }
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ).pad(horizontal: 24),
+    );
+  }
+
+  void _toExistingPinSketch(PinSketch sketch) {
     bottomSheet(
       context,
       height: .4,
@@ -168,13 +270,46 @@ class MapPageState extends State<MapPage> {
           return Center(
             child: Column(
               children: [
-
+                space(),
+                Text(
+                  l.letsMarkOnMap,
+                  style: theme.primaryTextTheme.headline4,
+                  textAlign: TextAlign.center,
+                ).pad(bottom: 8),
+                _categoriesDropdown(sketch),
               ],
             ),
           );
         },
       ).pad(horizontal: 24),
     );
+  }
+
+  void _toExistingPin(Pin pin) {
+    bottomSheet(
+      context,
+      height: .4,
+      child: TextBuilder(
+        builder: (context, l, theme) {
+          return Center(
+            child: Column(
+              children: [
+                space(),
+                Text(
+                  pin.category!.name,
+                  style: theme.primaryTextTheme.headline4,
+                  textAlign: TextAlign.center,
+                ).pad(bottom: 8),
+              ],
+            ),
+          );
+        },
+      ).pad(horizontal: 24),
+    );
+  }
+
+  void _saveSketch() {
+    //
   }
 }
 

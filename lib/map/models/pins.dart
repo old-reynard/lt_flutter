@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:little_things/auth/models/seeker.dart';
 import 'package:little_things/meta/models/json.dart';
+import 'package:quiver/core.dart';
 
 class PinCategory {
   final int id;
@@ -41,16 +43,64 @@ class PinCategory {
 
   @override
   int get hashCode => id.hashCode;
+
+  bool get isEmpty => id == 0 && name == '';
 }
 
-class Pin {
-  final int id;
+abstract class Drop {
   final double latitude;
   final double longitude;
-  final PinCategory? category;
+
+  Marker toMarker({VoidCallback? onTap});
+
+  Drop(this.latitude, this.longitude);
+
+  LatLng get position => LatLng(latitude, longitude);
+}
+
+class PinSketch extends Drop {
+  final category = ValueNotifier<PinCategory>(PinCategory.empty());
+
+  PinSketch({
+    required double latitude,
+    required double longitude,
+    // PinCategory? category,
+  }) : super(latitude, longitude);
+
+  @override
+  String toString() {
+    return 'PinSketch at ($latitude, $longitude)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is Drop && other.latitude == latitude && other.longitude == longitude;
+  }
+
+  @override
+  int get hashCode => hash2(latitude.hashCode, longitude.hashCode);
+
+  @override
+  Marker toMarker({VoidCallback? onTap}) {
+    return Marker(
+      position: position,
+      markerId: MarkerId('$latitude,$longitude'),
+      onTap: onTap,
+    );
+  }
+
+  void updateCategory(PinCategory? incoming) {
+    // category = incoming;
+    // notifyListeners();
+  }
+}
+
+class Pin extends Drop {
+  final int? id;
   final Seeker by;
   final int? votedByMe;
   final String? description;
+  final PinCategory? category;
   final int notes;
   final int approves;
   final int disapproves;
@@ -60,9 +110,9 @@ class Pin {
   // final String? displayNote;
 
   Pin({
-    required this.id,
-    required this.latitude,
-    required this.longitude,
+    this.id,
+    required double latitude,
+    required double longitude,
     this.category,
     required this.by,
     this.votedByMe,
@@ -73,7 +123,7 @@ class Pin {
     // this.displayNote,
     this.createdAt,
     this.updatedAt,
-  });
+  }) : super(latitude, longitude);
 
   factory Pin.fromJson(Json json) {
     return Pin(
@@ -97,10 +147,12 @@ class Pin {
     return '${category?.name ?? "Pin"} at ($latitude, $longitude)';
   }
 
-  Marker toMarker() {
+  @override
+  Marker toMarker({VoidCallback? onTap}) {
     return Marker(
       markerId: MarkerId('$id'),
-      position: LatLng(latitude, longitude),
+      position: position,
+      onTap: onTap,
     );
   }
 
@@ -108,6 +160,8 @@ class Pin {
   bool operator ==(Object other) {
     return other is Pin && other.id == id;
   }
+
+  bool get isUnsaved => id == null;
 
   @override
   int get hashCode => id.hashCode;

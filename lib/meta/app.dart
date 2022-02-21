@@ -12,28 +12,28 @@ class LittleThings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<MapStorage>.value(
-      value: MapStorage(),
-      child: ChangeNotifierProvider<Seeker>.value(
-        value: Seeker.empty(),
-        child: ValueListenableBuilder<AppTheme>(
-          valueListenable: themeSwitcher,
-          builder: (context, appTheme, _) {
-            themeSwitcher.resolvePredefinedTheme(context);
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<MapStorage>.value(value: MapStorage()),
+        ChangeNotifierProvider<Seeker>.value(value: Seeker.empty()),
+      ],
+      child: ValueListenableBuilder<AppTheme>(
+        valueListenable: themeSwitcher,
+        builder: (context, appTheme, _) {
+          themeSwitcher.resolvePredefinedTheme(context);
 
-            return MaterialApp(
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              theme: appTheme.theme,
-              home: const MapPage(),
-              supportedLocales: AppLocalizations.supportedLocales,
-            );
-          },
-        ),
+          return MaterialApp(
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            theme: appTheme.theme,
+            home: const MapPage(),
+            supportedLocales: AppLocalizations.supportedLocales,
+          );
+        },
       ),
     );
   }

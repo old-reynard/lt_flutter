@@ -7,6 +7,22 @@
   "@loginWithGoogle": {
     "description": "Login bottom sheet greeting."
   },
+  "letsMarkOnMap": "Let's mark something on the map!",
+  "@letsMarkOnMap": {
+    "description": "New pin bottom sheet."
+  },
+  "whatCategory": "What kind of pin is that?",
+  "@whatCategory": {
+    "description": "New pin bottom sheet."
+  },
+  "usefulHints": "Help us find it! (e.g. it's on the second floor, etc.)",
+  "@usefulHints": {
+    "description": "New pin bottom sheet."
+  },
+  "save": "Save!",
+  "@save": {
+    "description": "New pin bottom sheet."
+  },
   "loginToProceedBody": "Those map objects are called pins, by the way.",
   "@loginToProceedBody": {
     "description": "Login bottom sheet greeting."
