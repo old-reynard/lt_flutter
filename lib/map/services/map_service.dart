@@ -19,4 +19,17 @@ class MapService {
     final response = await request(bundle);
     return (response.body['pins'] as List? ?? []).map<Pin>((e) => Pin.fromJson(e)).toList();
   }
+
+  Future<Pin> createPin(PinSketch sketch) async {
+    final url = '$_api/pins';
+    final bundle = NetworkBundle(
+      url,
+      verb: 'post',
+      method: 'createPin',
+      service: _service,
+      body: sketch.toJson(),
+    );
+    final response = await request(bundle);
+    return Pin.fromJson(response.body['pin']);
+  }
 }

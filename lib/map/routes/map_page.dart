@@ -236,21 +236,22 @@ class MapPageState extends State<MapPage> {
                 PrimaryTextField(
                   maxLines: 3,
                   autoFocus: false,
+                  onChanged: sketch.description.to,
+                  initValue: sketch.description.value,
                 ),
                 space(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ValueListenableBuilder<PinCategory>(
-                      valueListenable: sketch.category,
-                      builder: (context, category, _) {
-                        final callback = category.isEmpty ? null : _saveSketch;
-                        return PrimaryMinuteButton(
-                          child: Text(l.save),
-                          onPressed: callback,
-                        );
-                      }
-                    ),
+                        valueListenable: sketch.category,
+                        builder: (context, category, _) {
+                          final callback = category.isEmpty ? null : () => _saveSketch(sketch);
+                          return PrimaryMinuteButton(
+                            child: Text(l.save),
+                            onPressed: callback,
+                          );
+                        }),
                   ],
                 ),
               ],
@@ -308,8 +309,9 @@ class MapPageState extends State<MapPage> {
     );
   }
 
-  void _saveSketch() {
-    //
+  Future<void> _saveSketch(PinSketch sketch) async {
+    await MapStorage.of(context).createPin(sketch);
+    context.pop();
   }
 }
 

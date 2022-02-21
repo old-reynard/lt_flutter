@@ -47,7 +47,12 @@ class MapStorage with ChangeNotifier {
     return _sketch;
   }
 
-  void updateCategory(PinSketch sketch, PinCategory? category) {
-    _sketches.where((element) => element == sketch).forEach((element) => element.updateCategory(category));
+  Future<void> createPin(PinSketch sketch) async {
+    final pin = await mapService.createPin(sketch);
+    _sketches.remove(sketch);
+    if (!_pins.contains(pin)) {
+      _pins.add(pin);
+    }
+    notifyListeners();
   }
 }

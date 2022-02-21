@@ -66,6 +66,12 @@ class Response {
   factory Response.error(int code, String error) {
     return Response(code: code, body: {}, error: error);
   }
+
+  @override
+  String toString() {
+    if (error != null) return '$code: $error';
+    return '$code: $body';
+  }
 }
 
 class _NetworkService {

@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:little_things/auth/models/seeker.dart';
 import 'package:little_things/meta/models/json.dart';
@@ -60,6 +60,7 @@ abstract class Drop {
 
 class PinSketch extends Drop {
   final category = ValueNotifier<PinCategory>(PinCategory.empty());
+  final description = ValueNotifier<String>('');
 
   PinSketch({
     required double latitude,
@@ -89,9 +90,15 @@ class PinSketch extends Drop {
     );
   }
 
-  void updateCategory(PinCategory? incoming) {
-    // category = incoming;
-    // notifyListeners();
+  Json toJson() {
+    Json json = {
+      'latitude': latitude,
+      'longitude': longitude,
+      'description': description.value,
+    };
+
+    if (!category.value.isEmpty) json['category'] = category.value.id;
+    return json;
   }
 }
 
